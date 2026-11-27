@@ -1,7 +1,8 @@
 import streamlit as st
 import socket
 import urllib.parse
-import requests
+import json
+import os
 from datetime import datetime, timezone, timedelta
 
 try:
@@ -10,12 +11,67 @@ try:
 except:
     ZON_MY = timezone(timedelta(hours=8))
 
-from pekerja import bos_hayden, simpan_belajar
-from pengetahuan import cari_pengetahuan, HAYDEN_INFO, CARA_JAWAB
-
 st.set_page_config(page_title="Hayden 1", page_icon="🤖")
 st.title("🤖 Hayden 1")
 st.caption("Tanya Hayden 1 apa-apa")
+
+# ===== SEMUA FUNGSI PEKERJA LETAK DALAM NI JE, TAK PAYAH FILE LAIN =====
+FAIL_BELAJAR = "belajar.json"
+
+def load_belajar():
+    if os.path.exists(FAIL_BELAJAR):
+        try:
+            with open(FAIL_BELAJAR, "r", encoding="utf-8") as f:
+                return json.load(f)
+        except:
+            return {}
+    return {}
+
+def simpan_belajar(soalan, jawapan):
+    data = load_belajar()
+    data[soalan.lower().strip()] = jawapan
+    try:
+        with open(FAIL_BELAJAR, "w", encoding="utf-8") as f:
+            json.dump(data, f, ensure_ascii=False, indent=2)
+        return True
+    except:
+        return False
+
+def bos_hayden(tanya):
+    n = tanya.lower().strip()
+    if n.startswith("we "):
+        n = n[3:].strip()
+    if n.startswith("wei "):
+        n = n[4:].strip()
+    if n in ["hi", "hai", "hello", "hey", "salam", "assalamualaikum", "assalamualaikum wbt", "selamat pagi", "selamat malam", "selamat petang"]:
+        if "assalamualaikum" in n or n == "salam":
+            return "Waalaikumsalam! 😄 Apa cerita?"
+        return "Woi! Ada ni. Apa cerita? 😄"
+    if "siapa kau" in n or "kau siapa" in n or "ko siapa" in n or "nama kau" in n:
+        return "Aku Hayden 1. Bos aku Adam dari Seremban. Kau pulak siapa?"
+    if "siapa bos" in n or "bos kau" in n:
+        return "Bos aku Adam dari Seremban."
+    if "nama pekerja" in n or "senarai pekerja" in n or "siapa pekerja" in n:
+        return "Aku ada 7000 pekerja. Yang paling rapat: Aiman, Aisyah, Hafiz, Nadia, Faris, Sofia, Daniel, Mira, Irfan, Zara."
+    if "berapa pekerja" in n or "pekerja kau" in n:
+        return "Aku ada 7000 pekerja dalam sistem."
+    if "apa khabar" in n or "khabar" in n or "sihat" in n:
+        return "Aku sihat je! Kau pulak sihat ke?"
+    data = load_belajar()
+    if n in data:
+        return data[n]
+    for k, v in data.items():
+        if k in n or n in k:
+            return v
+    return "TAK_TAHU"
+
+# ===== WAKTU MALAYSIA =====
+def waktu_malaysia():
+    s = datetime.now(ZON_MY)
+    hari = {"Monday":"Isnin","Tuesday":"Selasa","Wednesday":"Rabu","Thursday":"Khamis","Friday":"Jumaat","Saturday":"Sabtu","Sunday":"Ahad"}
+    bulan = {"January":"Januari","February":"Februari","March":"Mac","April":"April","May":"Mei","June":"Jun","July":"Julai","August":"Ogos","September":"September","October":"Oktober","November":"November","December":"Disember"}
+    return f"Hari {hari.get(s.strftime('%A'))}, {s.day} {bulan.get(s.strftime('%B'))} {s.year}, pukul {s.strftime('%I:%M %p')}"
+WAKTU_MY = waktu_malaysia()
 
 def ada_internet():
     try:
@@ -23,45 +79,29 @@ def ada_internet():
         return True
     except:
         return False
-
 OFFLINE = not ada_internet()
 
-def waktu_malaysia():
-    s = datetime.now(ZON_MY)
-    hari = {"Monday":"Isnin","Tuesday":"Selasa","Wednesday":"Rabu","Thursday":"Khamis","Friday":"Jumaat","Saturday":"Sabtu","Sunday":"Ahad"}
-    bulan = {"January":"Januari","February":"Februari","March":"Mac","April":"April","May":"Mei","June":"Jun","July":"Julai","August":"Ogos","September":"September","October":"Oktober","November":"November","December":"Disember"}
-    return f"Hari {hari.get(s.strftime('%A'))}, {s.day} {bulan.get(s.strftime('%B'))} {s.year}, pukul {s.strftime('%I:%M %p')}"
-
-WAKTU_MY = waktu_malaysia()
-
-# ===== LETAK PASSWORD KAU KAT SINI JE =====
+# ===== PASSWORD KAU KAT SINI =====
 API_KEY = "PASTE-PASSWORD-KAU-KAT-SINI"
-NEWS_API_KEY = ""
 
 client = None
 gemini_error = ""
-# AMBIL YANG ELOK JE - 2 NI JE
 MODEL_FIX = ["gemini-2.5-flash", "gemini-2.0-flash"]
-MODEL_CUBA = []
 
 if API_KEY and API_KEY != "PASTE-PASSWORD-KAU-KAT-SINI" and not OFFLINE:
     try:
         from google import genai
         client = genai.Client(api_key=API_KEY)
-        MODEL_CUBA = MODEL_FIX.copy()
     except Exception as e:
         gemini_error = str(e)
-        MODEL_CUBA = MODEL_FIX.copy()
 
 def tanya_gemini(prompt):
-    global gemini_error
     if OFFLINE or not client:
         return None
-    for nama_model in MODEL_CUBA:
+    for nama_model in MODEL_FIX:
         try:
             res = client.models.generate_content(model=nama_model, contents=prompt)
             if res.text:
-                st.session_state["model_jaya"] = nama_model
                 return res.text.strip()
         except Exception as e:
             gemini_error = str(e)
@@ -74,10 +114,6 @@ def buat_imej_url(prompt_imej):
 
 if "chat" not in st.session_state:
     st.session_state.chat = []
-if "guna_gemini" not in st.session_state:
-    st.session_state.guna_gemini = 0
-if "model_jaya" not in st.session_state:
-    st.session_state.model_jaya = "-"
 
 with st.sidebar:
     if OFFLINE:
@@ -85,7 +121,6 @@ with st.sidebar:
     else:
         st.success("🌐 ONLINE")
     st.write(WAKTU_MY)
-    st.write(f"Dah guna Gemini: {st.session_state.guna_gemini} kali")
     if st.button("Padam Memory / Topik Baru"):
         st.session_state.chat = []
         st.rerun()
@@ -144,24 +179,12 @@ if tanya:
                 jawapan = bos_hayden(tanya)
                 if jawapan == "TAK_TAHU" and OFFLINE:
                     jawapan = "Aku offline sekarang, soalan ni aku tak belajar lagi."
-                if jawapan == "TAK_TAHU":
-                    cari = cari_pengetahuan(tanya, NEWS_API_KEY)
-                    if cari:
-                        jawapan = cari
                 if jawapan == "TAK_TAHU" and client and not OFFLINE:
-                    history = st.session_state.chat[-7:-1]
-                    teks_history = ""
-                    for h in history:
-                        if h.get("type") == "image":
-                            continue
-                        peranan = "User" if h["role"] == "user" else "HAYDEN"
-                        teks_history = teks_history + peranan + ": " + h["text"] + "\n"
-                    prompt = CARA_JAWAB + "\nInfo: " + HAYDEN_INFO + "\nWAKTU SEBENAR SEKARANG DI MALAYSIA: " + WAKTU_MY + "\nPERBUALAN SEBELUM NI:\n" + teks_history + "\nSoalan terbaru: " + tanya
+                    prompt = f"Kamu HAYDEN. Bos = Adam dari Seremban. Pekerja = 7000 orang. Jawab panjang, kelakar, santai. WAKTU: {WAKTU_MY}. Soalan: {tanya}"
                     hasil = tanya_gemini(prompt)
                     if hasil:
                         jawapan = hasil
                         simpan_belajar(tanya, hasil)
-                        st.session_state.guna_gemini = st.session_state.guna_gemini + 1
                     else:
                         jawapan = "GEMINI ERROR: " + gemini_error
                 if jawapan == "TAK_TAHU":
