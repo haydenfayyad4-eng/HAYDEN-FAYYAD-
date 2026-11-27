@@ -26,31 +26,22 @@ def bos_hayden(tanya):
     n = tanya.lower().strip()
     if n.startswith("we "):
         n = n[3:].strip()
-    if n.startswith("wei "):
-        n = n[4:].strip()
-
-    if n in ["hi", "hai", "hello", "hey", "salam", "assalamualaikum", "assalamualaikum wbt", "selamat pagi", "selamat malam", "selamat petang"]:
+    if n in ["hi", "hai", "hello", "salam", "assalamualaikum"]:
         if "assalamualaikum" in n or n == "salam":
             return "Waalaikumsalam! 😄 Apa cerita?"
         return "Woi! Ada ni. Apa cerita? 😄"
-
-    if "siapa kau" in n or "siapa kamu" in n or "kau siapa" in n or "ko siapa" in n or "sapa kau" in n or "nama kau" in n:
-        return "Aku Hayden 1. Bos aku Adam dari Seremban. Kau pulak siapa?"
-
+    if "siapa kau" in n or "kau siapa" in n or "nama kau" in n:
+        return "Aku Hayden 1. Bos aku Adam dari Seremban."
     if "siapa bos" in n or "bos kau" in n:
         return "Bos aku Adam dari Seremban."
-
     if "berapa pekerja" in n or "pekerja kau" in n:
         return "Aku ada 7000 pekerja dalam sistem."
-
-    if "apa khabar" in n or "khabar" in n or "sihat" in n:
+    if "apa khabar" in n or "sihat" in n:
         return "Aku sihat je! Kau pulak sihat ke?"
-
     data = load_belajar()
     if n in data:
         return data[n]
     for k, v in data.items():
         if k in n or n in k:
             return v
-
     return "TAK_TAHU"
