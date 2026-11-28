@@ -31,7 +31,7 @@ def bos_hayden(tanya):
             return "Waalaikumsalam! 😄 Apa cerita?"
         return "Woi! Ada ni. Apa cerita? 😄"
     if "siapa kau" in n or "kau siapa" in n or "nama kau" in n:
-        return "Aku Hayden 1. Bos aku Adam dari Seremban."
+        return "Aku HAYDEN-FAYYAD. Bos aku Adam dari Seremban."
     if "siapa bos" in n or "bos kau" in n:
         return "Bos aku Adam dari Seremban."
     if "berapa pekerja" in n or "pekerja kau" in n:
