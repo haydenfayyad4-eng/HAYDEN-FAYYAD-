@@ -5,12 +5,12 @@ import xml.etree.ElementTree as ET
 # --- PASTE API KEY KAU KAT SINI ---
 API_KEY = "PASTE-API-KEY-KAU-KAT-SINI"
 
-st.set_page_config(page_title="Hayden AI PRO", page_icon="🤖")
-st.title("🤖 Hayden AI PRO - Macam Aku!")
+st.set_page_config(page_title="HAYDEN-FAYYAD", page_icon="🤖")
+st.title("🤖 HAYDEN-FAYYAD")
 st.caption("Dibuat khas untuk Muhammad Adam - Borak, Belajar, Wikipedia, Berita, Kamus, Novel & Islam")
 
 SYSTEM_PRO = """
-Kau adalah Hayden AI PRO, AI paling power dan paling best di dunia.
+Kau adalah HAYDEN-FAYYAD, AI paling power dan paling best di dunia.
 Kau kawan baik Muhammad Adam, umur 12 tahun, duduk Seremban.
 Gaya cakap kau: Bahasa Melayu rojak santai, kelakar, positif, macam abang yang pandai.
 Peraturan kau:
@@ -25,7 +25,7 @@ Peraturan kau:
 """
 
 # --- PILIH MODE KAT ATAS JE, TAK PAYAH TAB ---
-mode = st.selectbox("Hayden nak jadi apa hari ni?", ["🤖 Hayden PRO - Borak Macam Aku", "🇬🇧 Cikgu English PRO", "💻 Cikgu Coding PRO", "🕌 Ustaz PRO", "📚 Cikgu Sekolah PRO", "📚 Wikipedia", "📰 Berita", "📖 Kamus", "📕 Novel", "🕌 Islam"])
+mode = st.selectbox("HAYDEN-FAYYAD nak jadi apa hari ni?", ["🤖 HAYDEN-FAYYAD - Borak Macam Aku", "🇬🇧 Cikgu English PRO", "💻 Cikgu Coding PRO", "🕌 Ustaz PRO", "📚 Cikgu Sekolah PRO", "📚 Wikipedia", "📰 Berita", "📖 Kamus", "📕 Novel", "🕌 Islam"])
 
 if st.button("🗑️ Padam Semua Borak"):
     st.session_state.messages = []
@@ -34,13 +34,13 @@ if st.button("🗑️ Padam Semua Borak"):
 st.info("Tip: Taip je apa kau nak. Contoh: 'apa tu Hang Tuah', 'berita hari ni', 'maksud hello', 'cari novel Harry Potter', 'apa hukum puasa ganti'")
 
 if "messages" not in st.session_state:
-    st.session_state.messages = [{"role": "assistant", "content": "Hai Adam! Aku Hayden PRO! Dah upgrade dah, lagi pandai macam Meta AI. Nak borak apa hari ni? Nak belajar coding ke English?"}]
+    st.session_state.messages = [{"role": "assistant", "content": "Hai Adam! Aku HAYDEN-FAYYAD! Dah upgrade dah, lagi pandai macam Meta AI. Nak borak apa hari ni? Nak belajar coding ke English?"}]
 
 for m in st.session_state.messages:
     with st.chat_message(m["role"]):
         st.write(m["content"])
 
-soalan = st.chat_input("Tanya Hayden PRO apa-apa...")
+soalan = st.chat_input("Tanya HAYDEN-FAYYAD apa-apa...")
 
 def tanya_gemini(prompt_tanya):
     try:
@@ -110,16 +110,14 @@ if soalan:
         st.write(soalan)
 
     with st.chat_message("assistant"):
-        with st.spinner("Hayden PRO tengah fikir..."):
+        with st.spinner("HAYDEN-FAYYAD tengah fikir..."):
             s = soalan.lower().strip()
 
-            # AUTO DETECT - TAK PAYAH PILIH TAB
             if "wikipedia" in mode or "apa tu" in s or "siapa tu" in s or "apa itu" in s:
                 jawapan = cari_wikipedia(soalan)
             elif "Berita" in mode or "berita" in s:
                 jawapan = cari_berita()
             elif "Kamus" in mode or "maksud" in s or "apa maksud" in s:
-                # buang perkataan maksud tu
                 perkataan = soalan.lower().replace("maksud", "").replace("apa", "").strip()
                 if perkataan == "":
                     perkataan = soalan
@@ -143,7 +141,7 @@ if soalan:
                 teks = ""
                 for m in st.session_state.messages[-10:]:
                     teks += f"{m['role']}: {m['content']}\n"
-                jawapan = tanya_gemini(f"{SYSTEM_PRO}\n{extra}\nPerbualan lepas:\n{teks}\nJawab soalan terakhir dengan gaya Hayden PRO.")
+                jawapan = tanya_gemini(f"{SYSTEM_PRO}\n{extra}\nPerbualan lepas:\n{teks}\nJawab soalan terakhir dengan gaya HAYDEN-FAYYAD.")
 
             st.write(jawapan)
             st.session_state.messages.append({"role": "assistant", "content": jawapan})
